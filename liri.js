@@ -55,8 +55,71 @@ inquirer
                         }
                     });
             }
+            else if (inquirerResponse.userChoice ==="spotify-this-song") {
+                // Create a "Prompt" with a series of questions.
+                inquirer
+                    .prompt([
+                        // Here we create a basic text prompt.
+                        {
+                            type: "input",
+                            message: "Please enter the song Name?",
+                            name: "songName"
+                        },
+                        // Here we ask the user to confirm.
+                        {
+                            type: "confirm",
+                            message: "Are you sure:",
+                            name: "confirm",
+                            default: true
+                        }
+                    ]).then(function (inquirerResponse) {
+                        // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
+                        if (inquirerResponse.confirm) {
+                            console.log(inquirerResponse.songName);
+                            songInformation(inquirerResponse.songName);
+                        }
+                    });
+            }
+            else if(inquirerResponse.userChoice ==="my-tweets") {
+                console.log("Here is the last 20 tweets");
+                tweetInformation();
+            }
+            else if(inquirerResponse.userChoice ==="do-what-it-says"){
+                console.log("Reading from random.txt file");
+                readFileChoice();
+            }
         }
     });
+
+function songInformation(songName){
+    spotify
+        .search({ type: 'track', query: songName })
+        .then(function (response) {
+            //console.log(response);
+            //console.log();
+            if (response.tracks.items[0]) {
+                var track = response.tracks.items[0];
+                //console.log(JSON.stringify(track,null,2));
+                for (var i = 0; i < track.artists.length; i++) {
+                    console.log("Artists Name :" + track.artists[i].name);
+                }
+                console.log("Songs Name :" + track.name);
+                console.log("A preview link of the song from Spotify :" + track.preview_url);
+                console.log("The album that the song is from :" + track.album.name);
+
+            }
+            else{
+                console.log("Please enter the song name correctly");
+            }
+
+        })
+        .catch(function (err) {
+
+            console.log(err);
+        });
+
+
+}    
 function movieInformation(movieName) {
     if (movieName == "")
         movieName = "Mr.Nobody";
@@ -98,37 +161,7 @@ function movieInformation(movieName) {
 }
 
 
-if (userChoice === "spotify-this-song") {
-    //  console.log(process.argv.slice(3));
-    //var songName = process.argv[3];
-    var words = process.argv.slice(3);
-    var songName = words.join(' ');
-    console.log(songName);
-    spotify
-        .search({ type: 'track', query: songName })
-        .then(function (response) {
-            //console.log(response);
-            //console.log();
-            if (response.tracks.items[0]) {
-                var track = response.tracks.items[0];
-                //console.log(JSON.stringify(track,null,2));
-                for (var i = 0; i < track.artists.length; i++) {
-                    console.log("Artists Name :" + track.artists[i].name);
-                }
-                console.log("Songs Name :" + track.name);
-                console.log("A preview link of the song from Spotify :" + track.preview_url);
-                console.log("The album that the song is from :" + track.album.name);
-
-            }
-
-        })
-        .catch(function (err) {
-
-            console.log(err);
-        });
-
-}
-if (userChoice === "my-tweets") {
+function tweetInformation() {
     var params = { screen_name: 'MY2' };
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
         if (!error) {
@@ -146,16 +179,31 @@ if (userChoice === "my-tweets") {
 
     });
 }
-if (userChoice === "do-what-it-says") {
+function readFileChoice(){
+
     fs.readFile("random.txt", "utf8", function (error, data) {
         if (error) {
             return console.log(error);
         }
-        console.log("contents from file :" + data);
+        //console.log("contents from file :" + data);
         var dataArr = data.split(",");
-        console.log(dataArr);
-        var randomTxtChoice = dataArr[i];
-        var songName = dataArr[i];
+        //console.log(dataArr);
+        var randomTxtChoice = dataArr[0];
+        var songName = dataArr[1];
+        switch(randomTxtChoice){
+            case "my-tweets":
+                tweetInformation();
+                break;
+            case "spotify-this-song":
+                songInformation(songName);
+                break;
+            case "movie-this":
+                movieInformation(movieName);
+                break;
+            default:
+                console.log("Cannot identify the Choice.");
+
+        }
 
 
     });
