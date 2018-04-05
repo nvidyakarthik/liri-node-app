@@ -1,6 +1,7 @@
 require("dotenv").config();
 var keys = require("./keys.js");
 var request = require("request");
+var fs=require("fs");
 var Spotify = require("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
 var Twitter = require('twitter');
@@ -87,4 +88,19 @@ if (userChoice === "my-tweets") {
         }
 
     });
+}
+if(userChoice==="do-what-it-says"){
+    fs.readFile("random.txt","utf8",function(error,data){
+        if(error){
+            return console.log(error);
+        }
+        console.log("contents from file :"+data);
+        var dataArr=data.split(",");
+        console.log(dataArr);
+        var randomTxtChoice=dataArr[i];
+        var songName=dataArr[i];
+    
+        
+    });
+    
 }
