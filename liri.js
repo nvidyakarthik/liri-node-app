@@ -59,7 +59,7 @@ inquirer
                         // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
                         if (inquirerResponse1.confirm) {
                             console.log(inquirerResponse1.movieName);
-                            movieInformation(inquirerResponse1.movieName);
+                            movieInformation(inquirerResponse1.movieName,inquirerResponse.outputLogConfirm);
                         }
                     });
             }
@@ -128,13 +128,14 @@ function songInformation(songName){
 
 
 }    
-function movieInformation(movieName) {
+function movieInformation(movieName,outputLogConfirm) {
+    var output="";
     if (movieName == "")
         movieName = "Mr.Nobody";
     var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
     // This line is just to help us debug against the actual URL.
     //console.log(queryUrl);
-    console.log("You didn't enter any Movie name.So we provided a default movie information about "+movieName);
+    output+="You didn't enter any Movie name.So we provided a default movie information about "+movieName+"\n";
     // Then create a request to the queryUrl
     request(queryUrl, function (error, response, body) {
         // If the request is successful
@@ -142,20 +143,25 @@ function movieInformation(movieName) {
             // Then log the Release Year for the movie
             var jsonBody = JSON.parse(body);
             if(jsonBody.Response!="False"){
-            console.log("*********************************************************************");
-            console.log("Title of the Movie : " + jsonBody.Title);
-            console.log("Year of the Movie : " + jsonBody.Year);
-            console.log("IMDB Rating of the movie : " + jsonBody.imdbRating);
+            output+="*********************************************************************\n";
+            output+="Title of the Movie : " + jsonBody.Title+"\n";
+            output+="Year of the Movie : " + jsonBody.Year+"\n";
+            output+="IMDB Rating of the movie : " + jsonBody.imdbRating+"\n";
             for (var i = 0; i < jsonBody.Ratings.length; i++) {
                 if (jsonBody.Ratings[i].Source == "Rotten Tomatoes")
-                    console.log("Rotten Tomatoes Rating of the movie : " + jsonBody.Ratings[i].Value);
+                    output+="Rotten Tomatoes Rating of the movie : " + jsonBody.Ratings[i].Value+"\n";
 
             }
-            console.log("Country where the movie was produced : " + jsonBody.Country);
-            console.log("Language of the movie : " + jsonBody.Language);
-            console.log("Plot of the movie : " + jsonBody.Plot);
-            console.log("Actors in the movie : " + jsonBody.Actors);
-            console.log("*********************************************************************");
+            output+="Country where the movie was produced : " + jsonBody.Country+"\n";
+            output+="Language of the movie : " + jsonBody.Language+"\n";
+            output+="Plot of the movie : " + jsonBody.Plot+"\n";
+            output+="Actors in the movie : " + jsonBody.Actors+"\n";
+            output+="*********************************************************************\n";
+            console.log(outputLogConfirm);
+            if(outputLogConfirm)
+                outputToLogFile(output);
+            else
+                console.log(output);
             }
             else{
                 console.log(jsonBody.Error);
@@ -181,10 +187,8 @@ function tweetInformation(outputLogConfirm) {
                 output+="Date Created:" + tweets[i].created_at+"\n";
                 output+="***********************************************************************************"+"\n";
             }
-            if(outputLogConfirm){
-                outputToLogFile(output);
-               
-            }
+            if(outputLogConfirm)
+                outputToLogFile(output);       
             else
                 console.log(output);
         }
