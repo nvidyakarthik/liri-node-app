@@ -80,11 +80,11 @@ inquirer
                             name: "confirm",
                             default: true
                         }
-                    ]).then(function (inquirerResponse) {
+                    ]).then(function (inquirerResponse1) {
                         // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
-                        if (inquirerResponse.confirm) {
-                            console.log(inquirerResponse.songName);
-                            songInformation(inquirerResponse.songName);
+                        if (inquirerResponse1.confirm) {
+                            console.log(inquirerResponse1.songName);
+                            songInformation(inquirerResponse1.songName,inquirerResponse.outputLogConfirm);
                         }
                     });
             }
@@ -94,12 +94,13 @@ inquirer
             }
             else if(inquirerResponse.userChoice ==="do-what-it-says"){
                 console.log("Reading from random.txt file");
-                readFileChoice();
+                readFileChoice(inquirerResponse.outputLogConfirm);
             }
         }
     });
 
-function songInformation(songName){
+function songInformation(songName,outputLogConfirm){
+    var output="";
     spotify
         .search({ type: 'track', query: songName })
         .then(function (response) {
@@ -108,12 +109,18 @@ function songInformation(songName){
             if (response.tracks.items[0]) {
                 var track = response.tracks.items[0];
                 //console.log(JSON.stringify(track,null,2));
+                output+="***********************SONG INFORMATION***************************************\n";
                 for (var i = 0; i < track.artists.length; i++) {
-                    console.log("Artists Name :" + track.artists[i].name);
+                    output+="Artists Name :" + track.artists[i].name+"\n";
                 }
-                console.log("Songs Name :" + track.name);
-                console.log("A preview link of the song from Spotify :" + track.preview_url);
-                console.log("The album that the song is from :" + track.album.name);
+                output+="Songs Name :" + track.name+"\n";
+                output+="A preview link of the song from Spotify :" + track.preview_url+"\n";
+                output+="The album that the song is from :" + track.album.name+"\n";
+                
+                if(outputLogConfirm)
+                    outputToLogFile(output);
+                else
+                    console.log(output);    
 
             }
             else{
@@ -143,7 +150,7 @@ function movieInformation(movieName,outputLogConfirm) {
             // Then log the Release Year for the movie
             var jsonBody = JSON.parse(body);
             if(jsonBody.Response!="False"){
-            output+="*********************************************************************\n";
+            output+="***************************************MOVIE INFORMATION******************************\n";
             output+="Title of the Movie : " + jsonBody.Title+"\n";
             output+="Year of the Movie : " + jsonBody.Year+"\n";
             output+="IMDB Rating of the movie : " + jsonBody.imdbRating+"\n";
@@ -156,8 +163,7 @@ function movieInformation(movieName,outputLogConfirm) {
             output+="Language of the movie : " + jsonBody.Language+"\n";
             output+="Plot of the movie : " + jsonBody.Plot+"\n";
             output+="Actors in the movie : " + jsonBody.Actors+"\n";
-            output+="*********************************************************************\n";
-            console.log(outputLogConfirm);
+            
             if(outputLogConfirm)
                 outputToLogFile(output);
             else
@@ -182,10 +188,11 @@ function tweetInformation(outputLogConfirm) {
         if (!error) {
             //console.log(tweets);
            
-            for (var i = 0; i < tweets.length; i++) {                
+            for (var i = 0; i < tweets.length; i++) {  
+                output+="**************************TWEET MESSAGES************************************\n";              
                 output+="Tweet Message " + (i + 1) + ": " + tweets[i].text+"\n";
                 output+="Date Created:" + tweets[i].created_at+"\n";
-                output+="***********************************************************************************"+"\n";
+                
             }
             if(outputLogConfirm)
                 outputToLogFile(output);       
@@ -198,7 +205,7 @@ function tweetInformation(outputLogConfirm) {
 
     });
 }
-function readFileChoice(){
+function readFileChoice(outputLogConfirm){
 
     fs.readFile("random.txt", "utf8", function (error, data) {
         if (error) {
@@ -211,13 +218,13 @@ function readFileChoice(){
         var songName = dataArr[1];
         switch(randomTxtChoice){
             case "my-tweets":
-                tweetInformation();
+                tweetInformation(outputLogConfirm);
                 break;
             case "spotify-this-song":
-                songInformation(songName);
+                songInformation(songName,outputLogConfirm);
                 break;
             case "movie-this":
-                movieInformation(movieName);
+                movieInformation(movieName,outputLogConfirm);
                 break;
             default:
                 console.log("Cannot identify the Choice.");
