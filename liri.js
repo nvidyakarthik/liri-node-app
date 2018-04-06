@@ -23,7 +23,15 @@ inquirer
             message: "Are you sure:",
             name: "confirm",
             default: true
-        }
+        },
+        // Here we ask the user to confirm.
+        {
+            type: "confirm",
+            message: "Do you want the output to a log.txt file?:",
+            name: "outputLogConfirm",
+            default: true
+        },
+
     ])
     .then(function (inquirerResponse) {
         // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
@@ -82,7 +90,7 @@ inquirer
             }
             else if(inquirerResponse.userChoice ==="my-tweets") {
                 console.log("Here is the last 20 tweets");
-                tweetInformation();
+                tweetInformation(inquirerResponse.outputLogConfirm);
             }
             else if(inquirerResponse.userChoice ==="do-what-it-says"){
                 console.log("Reading from random.txt file");
@@ -161,17 +169,24 @@ function movieInformation(movieName) {
 }
 
 
-function tweetInformation() {
+function tweetInformation(outputLogConfirm) {
     var params = { screen_name: 'MY2' };
+    var output="";
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
         if (!error) {
             //console.log(tweets);
-            for (var i = 0; i < tweets.length; i++) {
-
-                console.log("Date Created:" + tweets[i].created_at);
-                console.log("Message " + (i + 1) + " " + tweets[i].text);
-                console.log("***********************************************************************************");
+           
+            for (var i = 0; i < tweets.length; i++) {                
+                output+="Tweet Message " + (i + 1) + ": " + tweets[i].text+"\n";
+                output+="Date Created:" + tweets[i].created_at+"\n";
+                output+="***********************************************************************************"+"\n";
             }
+            if(outputLogConfirm){
+                outputToLogFile(output);
+               
+            }
+            else
+                console.log(output);
         }
         else {
             console.log(error);
@@ -206,6 +221,15 @@ function readFileChoice(){
         }
 
 
+    });
+
+}
+function outputToLogFile(output){
+    console.log("Output sent to log.txt file.Please check it.")
+    fs.appendFile("log.txt",output, function(err) {
+        if (err) {
+        return console.log(err);
+    }
     });
 
 }
