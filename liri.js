@@ -4,8 +4,7 @@ var request = require("request");
 var inquirer = require("inquirer");
 var fs = require("fs");
 var Spotify = require("node-spotify-api");
-var spotify = new Spotify(keys.spotify);
-console.log("spofity keys"+spotify);
+var spotify = new Spotify(keys.spotify)
 var Twitter = require('twitter');
 var client = new Twitter(keys.twitter);
 var userChoice = process.argv[2];
@@ -31,7 +30,7 @@ inquirer
             type: "confirm",
             message: "Do you want the output sent to a log.txt file?:",
             name: "outputLogConfirm",
-            default: true
+            default: false
         },
 
     ])
@@ -60,7 +59,6 @@ inquirer
                     ]).then(function (inquirerResponse1) {
                         // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
                         if (inquirerResponse1.confirm) {
-                            console.log(inquirerResponse1.movieName);
                             movieInformation(inquirerResponse1.movieName,inquirerResponse.outputLogConfirm);
                         }
                     });
@@ -85,7 +83,7 @@ inquirer
                     ]).then(function (inquirerResponse1) {
                         // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
                         if (inquirerResponse1.confirm) {
-                            console.log(inquirerResponse1.songName);
+                            //console.log(inquirerResponse1.songName);
                             songInformation(inquirerResponse1.songName,inquirerResponse.outputLogConfirm);
                         }
                     });
@@ -104,6 +102,11 @@ inquirer
 //This function uses spotify API to display the song information asked by the user
 function songInformation(songName,outputLogConfirm){
     var output="";
+    output+="***********************SONG INFORMATION***************************************\n";
+    if (songName === ""){
+        songName = "All That She Wants";
+        output+="You didn't enter any Song name.So we provided a default song information about '"+songName+"'\n";
+    }
     spotify
         .search({ type: 'track', query: songName })
         .then(function (response) {
@@ -112,7 +115,7 @@ function songInformation(songName,outputLogConfirm){
             if (response.tracks.items[0]) {
                 var track = response.tracks.items[0];
                 //console.log(JSON.stringify(track,null,2));
-                output+="***********************SONG INFORMATION***************************************\n";
+               
                 for (var i = 0; i < track.artists.length; i++) {
                     output+="Artists Name :" + track.artists[i].name+"\n";
                 }
@@ -142,12 +145,15 @@ function songInformation(songName,outputLogConfirm){
 //This function uses OMDB API to display movie information asked by the user
 function movieInformation(movieName,outputLogConfirm) {
     var output="";
-    if (movieName == "")
+    output+="***************************************MOVIE INFORMATION******************************\n";
+    if (movieName === ""){
         movieName = "Mr.Nobody";
+        output+="You didn't enter any Movie name.So we provided a default movie information about '"+movieName+"'\n";
+    }
     var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
     // This line is just to help us debug against the actual URL.
     //console.log(queryUrl);
-    output+="You didn't enter any Movie name.So we provided a default movie information about "+movieName+"\n";
+    
     // Then create a request to the queryUrl
     request(queryUrl, function (error, response, body) {
         // If the request is successful
@@ -155,7 +161,7 @@ function movieInformation(movieName,outputLogConfirm) {
             // Then log the Release Year for the movie
             var jsonBody = JSON.parse(body);
             if(jsonBody.Response!="False"){
-            output+="***************************************MOVIE INFORMATION******************************\n";
+            
             output+="Title of the Movie : " + jsonBody.Title+"\n";
             output+="Year of the Movie : " + jsonBody.Year+"\n";
             output+="IMDB Rating of the movie : " + jsonBody.imdbRating+"\n";
