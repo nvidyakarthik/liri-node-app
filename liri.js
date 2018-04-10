@@ -5,11 +5,13 @@ var inquirer = require("inquirer");
 var fs = require("fs");
 var Spotify = require("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
+console.log("spofity keys"+spotify);
 var Twitter = require('twitter');
 var client = new Twitter(keys.twitter);
 var userChoice = process.argv[2];
 inquirer
     .prompt([
+        //list of choices
         {
             type: "list",
             message: "Enter your choice?",
@@ -27,7 +29,7 @@ inquirer
         // Here we ask the user to confirm.
         {
             type: "confirm",
-            message: "Do you want the output to a log.txt file?:",
+            message: "Do you want the output sent to a log.txt file?:",
             name: "outputLogConfirm",
             default: true
         },
@@ -93,12 +95,13 @@ inquirer
                 tweetInformation(inquirerResponse.outputLogConfirm);
             }
             else if(inquirerResponse.userChoice ==="do-what-it-says"){
-                console.log("Reading from random.txt file");
+                console.log("Reading command from random.txt file");
                 readFileChoice(inquirerResponse.outputLogConfirm);
             }
         }
     });
 
+//This function uses spotify API to display the song information asked by the user
 function songInformation(songName,outputLogConfirm){
     var output="";
     spotify
@@ -134,7 +137,9 @@ function songInformation(songName,outputLogConfirm){
         });
 
 
-}    
+} 
+
+//This function uses OMDB API to display movie information asked by the user
 function movieInformation(movieName,outputLogConfirm) {
     var output="";
     if (movieName == "")
@@ -180,7 +185,7 @@ function movieInformation(movieName,outputLogConfirm) {
 
 }
 
-
+//This function displays the last 20 tweets of my twitter account
 function tweetInformation(outputLogConfirm) {
     var params = { screen_name: 'MY2' };
     var output="";
@@ -205,6 +210,8 @@ function tweetInformation(outputLogConfirm) {
 
     });
 }
+
+//This function reads command and the random.txt file and displays output accordingly.
 function readFileChoice(outputLogConfirm){
 
     fs.readFile("random.txt", "utf8", function (error, data) {
